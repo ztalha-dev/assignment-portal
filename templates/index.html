@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assignment Submission Portal</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 880px; margin: 2rem auto; padding: 0 1rem; color: #1f2933; }
+    h1 { margin-bottom: .2rem; }
+    .sub { color: #616e7c; margin-top: 0; }
+    form { display: grid; gap: .8rem; background: #f5f7fa; padding: 1.25rem; border-radius: 8px; }
+    label { display: grid; gap: .3rem; font-weight: 600; }
+    input { padding: .55rem; border: 1px solid #cbd2d9; border-radius: 4px; font: inherit; }
+    button { padding: .65rem; background: #1d4ed8; color: #fff; border: 0; border-radius: 4px; font: inherit; cursor: pointer; }
+    button:hover { background: #1e40af; }
+    .errors { background: #fde8e8; color: #9b1c1c; padding: .6rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+    .success { background: #def7ec; color: #03543f; padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: .75rem; }
+    th, td { text-align: left; padding: .55rem; border-bottom: 1px solid #e4e7eb; }
+    th { background: #f5f7fa; }
+  </style>
+</head>
+<body>
+  <h1>Assignment Submission Portal</h1>
+  <p class="sub">CSC418 – DevOps for Cloud Computing</p>
+
+  {% if errors %}
+  <div class="errors" role="alert">
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+  {% elif saved %}
+  <div class="success">Submission saved successfully.</div>
+  {% endif %}
+
+  <!-- novalidate: validation is done on the server, which is what we test -->
+  <form method="post" action="{{ url_for('submit') }}" novalidate>
+    <label>Name
+      <input name="name" value="{{ form.get('name', '') }}" placeholder="Ali Khan">
+    </label>
+    <label>Registration number
+      <input name="reg_no" value="{{ form.get('reg_no', '') }}" placeholder="FA22-BCS-001">
+    </label>
+    <label>Assignment title
+      <input name="title" value="{{ form.get('title', '') }}" placeholder="DevOps Lab Mid">
+    </label>
+    <label>Submission URL
+      <input name="url" value="{{ form.get('url', '') }}" placeholder="https://github.com/you/repo">
+    </label>
+    <button type="submit">Submit assignment</button>
+  </form>
+
+  <h2>Saved submissions ({{ submissions|length }})</h2>
+  {% if submissions %}
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Reg. No.</th><th>Title</th><th>Link</th><th>Submitted (UTC)</th></tr>
+    </thead>
+    <tbody>
+      {% for s in submissions %}
+      <tr>
+        <td>{{ s.name }}</td>
+        <td>{{ s.reg_no }}</td>
+        <td>{{ s.title }}</td>
+        <td><a href="{{ s.url }}" target="_blank" rel="noopener">Open</a></td>
+        <td>{{ s.submitted_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No submissions yet.</p>
+  {% endif %}
+</body>
+</html>
