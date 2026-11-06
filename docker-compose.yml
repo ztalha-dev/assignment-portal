@@ -1,0 +1,36 @@
+services:
+  portal:
+    build: .
+    image: assignment-portal
+    ports:
+      - "5000:5000"
+    volumes:
+      - portal-data:/app/data
+
+  receiver:
+    image: python:3.12-slim
+    working_dir: /app
+    command: python receiver/receiver.py
+    environment:
+      RECEIVER_HOST: 0.0.0.0
+      RECEIVER_PORT: "5001"
+      RECEIVER_TOKEN: ${RECEIVER_TOKEN}
+      REPORT_PATH: /app/testreport.json
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./:/app
+    ports:
+      - "5001:5001"
+
+  tunnel:
+    image: ngrok/ngrok:latest
+    command: http receiver:5001 --log stdout
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - receiver
+
+volumes:
+  portal-data:

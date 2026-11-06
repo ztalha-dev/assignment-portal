@@ -8,3 +8,4 @@ submissions.json
 testreport.json
 test-report.json
 reports/
+.env

@@ -1,8 +1,11 @@
 name: CI
 
 on:
-  push:              # runs on every push, to any branch
-  workflow_dispatch: # lets you re-run it manually from the Actions tab
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -17,4 +20,34 @@ jobs:
         run: docker build -t assignment-portal:${{ github.sha }} .
 
       - name: Run tests inside the container
-        run: docker run --rm assignment-portal:${{ github.sha }} pytest -v
+        run: |
+          mkdir -p reports
+          echo "TESTS_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          docker run --rm -v "$PWD/reports:/app/reports" \
+            assignment-portal:${{ github.sha }} \
+            pytest -v --junitxml=reports/junit.xml
+
+      - name: Build JSON test report
+        if: always()
+        run: python3 scripts/build_report.py reports/junit.xml test-report.json
+
+      - name: Send report to local receiver
+        if: always()
+        continue-on-error: true
+        env:
+          RECEIVER_URL: ${{ secrets.RECEIVER_URL }}
+          RECEIVER_TOKEN: ${{ secrets.RECEIVER_TOKEN }}
+        run: |
+          if [ -z "$RECEIVER_URL" ]; then
+            echo "::warning::RECEIVER_URL secret is not set; skipping delivery."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 30 \
+            --retry 3 --retry-all-errors \
+            -X POST "$RECEIVER_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Report-Token: $RECEIVER_TOKEN" \
+            -H "ngrok-skip-browser-warning: true" \
+            --data-binary @test-report.json
+          echo
+          echo "Report delivered to the local receiver."
