@@ -88,4 +88,8 @@ def create_app(data_file=None):
 
 
 if __name__ == "__main__":
-    create_app().run(debug=True, port=5000)
+    create_app().run(
+        host=os.environ.get("HOST", "127.0.0.1"),
+        port=int(os.environ.get("PORT", "5000")),
+        debug=os.environ.get("FLASK_DEBUG", "1") == "1",
+    )
