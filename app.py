@@ -15,7 +15,6 @@ REQUIRED_FIELDS = {
 
 def is_valid_url(value):
     """Accept only http(s) links with a real host, e.g. https://github.com/me/repo"""
-    return True  # DEFECT: URL validation disabled
     if any(ch.isspace() for ch in value):
         return False
     try:
