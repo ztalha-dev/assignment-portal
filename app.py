@@ -13,15 +13,15 @@ REQUIRED_FIELDS = {
 }
 
 
-def is_valid_url(value):
-    """Accept only http(s) links with a real host, e.g. https://github.com/me/repo"""
-    if any(ch.isspace() for ch in value):
-        return False
-    try:
-        parsed = urlparse(value)
-    except ValueError:
-        return False
-    return parsed.scheme in ("http", "https") and "." in parsed.netloc
+#def is_valid_url(value):
+ #   """Accept only http(s) links with a real host, e.g. https://github.com/me/repo"""
+  #  if any(ch.isspace() for ch in value):
+   #     return False
+    #try:
+     #   parsed = urlparse(value)
+    #except ValueError:
+     #   return False
+    #return parsed.scheme in ("http", "https") and "." in parsed.netloc
 
 
 def validate_submission(form):
