@@ -11,12 +11,6 @@ VALID_SUBMISSION = {
 
 
 @pytest.fixture
-def client(tmp_path):
-    """Each test gets a fresh app with its own empty, temporary data file."""
-    app = create_app(data_file=str(tmp_path / "submissions.json"))
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
 
 
 def saved_submissions(client):
